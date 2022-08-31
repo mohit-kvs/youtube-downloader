@@ -1,5 +1,7 @@
 from pytube import YouTube
 import os
+import pandas as pd
+import tqdm
 
 def video(link):
     yt = YouTube(link)
@@ -8,7 +10,6 @@ def video(link):
     # yt.streams.filter(only_audio=True).first().download(output_path=destination)
 
 def playlist(link):
-    # p = input("Enter th url of the playlist")
     purl = Playlist(link)
     print(f"Total number of videos/songs = {purl.length}")
     nameOfPlaylist = input("Please name your playlist")
@@ -16,12 +17,38 @@ def playlist(link):
 
     for video in purl.videos:
         print(video.title)
-        song = video.streams.filter(only_audio=True).first().download(output_path=destination)
-        #video.streams.first().download()
+        song = video.streams.filter(only_audio=True).first()
+        song.download(output_path=destination)
 
+def song(link,destination):
+    yt = YouTube(link)
+    yt.streams.filter(only_audio=True).first().download(output_path=destination)
 
-def main():
-    link='https://www.youtube.com/watch?v=WN7nBZMB3lk'
-    video(link)
+def changeExtensions(destination):
+    # get all the names in the destination folder
+    filenames = next(os.walk(destination), (None, None, []))[2]  # [] if no file
 
-main()
+    filenamesminusExtension = [filename.replace('.mp4', '') for filename in filenames]
+    print(filenames)
+    print(filenamesminusExtension)
+
+    for i,j in zip(filenames,filenamesminusExtension):
+        os.rename(f"/workspace/youtube-downloader/Liked Music/{i}", f"/workspace/youtube-downloader/Liked Music/{j}.mp3") # change extensions
+
+def main(file):
+    #import CSV file as pandas dataframe
+    df = pd.read_csv(file)
+    songURL = (df[['Song URL']])
+    # print(songURL.head())
+    songString=df["Song URL"].values.astype(str) # converting dataframe to numpy arrays
+    destination='Liked Music/' # destination of download
+
+    count=1 # counter 
+    for i in songString: # iterating through array list and passing it to song function (poorly named lmao)
+        song(i,destination)
+        print(f"Downloaded {count}/{len(songString)}")
+        count+=1
+
+destination='Liked Music/'
+# main('music-library-songs.csv')
+changeExtensions(destination)
