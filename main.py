@@ -22,13 +22,13 @@ def playlist(link):
 
 def song(link,destination):
     yt = YouTube(link)
-    yt.streams.filter(only_audio=True).first().download(output_path=destination)
+    yt.streams.filter(only_audio=True).last().download(output_path=destination)
 
 def changeExtensions(destination):
     # get all the names in the destination folder
     filenames = next(os.walk(destination), (None, None, []))[2]  # [] if no file
 
-    filenamesminusExtension = [filename.replace('.mp4', '') for filename in filenames]
+    filenamesminusExtension = [filename.replace('.webm', '') for filename in filenames]
     print(filenames)
     print(filenamesminusExtension)
 
@@ -49,6 +49,8 @@ def main(file):
         print(f"Downloaded {count}/{len(songString)}")
         count+=1
 
-destination='Liked Music/'
-# main('music-library-songs.csv')
-changeExtensions(destination)
+    print("Download Complete")
+    print("Changing extensions now")
+    changeExtensions(destination)
+
+main('music-library-songs.csv')
